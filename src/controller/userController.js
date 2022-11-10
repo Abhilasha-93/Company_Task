@@ -64,7 +64,7 @@ exports.createUser = async function (req, res) {
     // validation
     const salt = await bcrypt.genSalt(10);
     hashPassword = await bcrypt.hash(password, salt);
-
+    data.password = hashPassword
     let createdUser = await userModel.create(data)
     return res.status(201).send({ status: true, message: "user data is created", data: createdUser})
 }

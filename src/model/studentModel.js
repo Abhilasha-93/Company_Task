@@ -16,9 +16,9 @@ const studentSchema = new mongoose.Schema({
     },
     isDeleted:{
         type:Boolean,
-        default:true
+        default:false
     },
-    facultyId:{
+    userId:{
         type:ObjectId,
         ref:'user',
         required:true

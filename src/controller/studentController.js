@@ -33,29 +33,29 @@ exports.createStudent = async function (req, res) {
     }
    
     //check marks is present 
-    if(!marks ||typeof marks !=='number' || marks.trim().length==0 )
+    if(!marks ||typeof marks !=='number' || marks.length==0 )
     {
         return res.status(400).send({ status: false, msg: "marks required and is of number type" })
     }
 
     //validate marks
-    if (!/^\d{3}$/.test(marks)) {
-        return res.status(400).send({ status: false, message: "marks contain only number" })
-    }
+    // if (!/^([0-9]{3})$/.test(marks)) {
+    //     return res.status(400).send({ status: false, message: "marks contain only number" })
+    // }
 
-    let filter = { name, subject }
-    let update = { marks }
-
-    let studentData = await studentModel.find({ name: name, subject: subject });
-
-    if (!studentData) {
+ 
+    let studentData = await studentModel.find({ name: name});
+    console.log(studentData)
+    
+    if (studentData.length==0) {
 
         let createStudentData = await studentModel.create(data);
+       
         return res.status(201).send({ message: "student data created", data: createStudentData })
 
     } else {
-
-        let updatedStudentData = await studentModel.findOneAndUpdate(filter, update, { new: true, upsert: true })
+    
+        let updatedStudentData = await studentModel.findOneAndUpdate({name:name,subject:subject},{$inc:{marks : marks}}, { new: true })
         return res.status(200).send({ message: "student data updated", data: updatedStudentData })
 
     }
@@ -72,22 +72,25 @@ exports.getStudent = async function (req, res) {
     let { name, subject } = data
     // validation
      //check name is present 
+    
      if(!name ||typeof name !=='string' || name.trim().length==0 )
      {
          return res.status(400).send({ status: false, msg: "name is required and is of string type" })
      }
- 
+    
      //validate name
      if (!/^([a-zA-Z. , ]){1,100}$/.test(name)) {
          return res.status(400).send({ status: false, message: `name contain only alphabets` })
      }
      
      //check subject is present 
+   
      if(!subject ||typeof subject !=='string' || subject.trim().length==0 )
      {
          return res.status(400).send({ status: false, msg: "subject is required and is of string type" })
      }
- 
+    
+     
      //validate subject
      if (!/^([a-zA-Z. , ]){1,100}$/.test(name)) {
          return res.status(400).send({ status: false, message: `subject contain only alphabets` })
@@ -125,7 +128,6 @@ exports.deleteStudentData = async function(req,res){
 
     let checkstudent=await studentModel.find({name: name, subject: subject} )
     if(!checkstudent) return res.status(404).send({status:false, message:"Data not found"})
-    
     if(checkstudent.isDeleted=="true")
     return res.status(400).send({status:false, message:"Data already deleted"})
 
