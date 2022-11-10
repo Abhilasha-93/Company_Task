@@ -1,33 +1,24 @@
 const jwt = require('jsonwebtoken')
 
 
-const MidAuth = async function(req, res, next){
+const MidAuth = async function (req,res,next){
+    try{
+        let token = req.headers["x-api-key"];
+        if(!token)token = req.headers["x-Api-key"];
 
-    try {
+        if(!token) return res.status(400).send({status:false, message:"token must be present in header"});
 
-        let bearerHeader = req.headers.authorization;
-        if(typeof bearerHeader == "undefined") 
-        return res.status(400).send({ status: false, message: "Token is missing" });
-        
-        let bearerToken = bearerHeader.split(' ');
+        try{let decodedToken = jwt.verify(token,"Secret"); 
        
-        let token = bearerToken[1];
-
-        let decodeToken = jwt.verify(token, 'secret')
-    
-        if (!decodeToken) 
-        return res.status(401).send({ status: false, message: `Invalid Token` })
-        
-        req.userId = decodeToken.userId
-
-        next()
-
-
-    } catch (err) {
-
-        res.status(500).send({ status: false, message: err.message })
+        req.decodedToken=decodedToken;}
+        catch(err){
+            return res.status(401).send({status:false,data: err.message, message:"token is invalid"})
+        }
+        next() 
+    }
+    catch(err){
+        return res.status(500).send({status:false, message:err.message})
     }
 }
-
 
 module.exports.MidAuth  = MidAuth

@@ -66,8 +66,32 @@ exports.createStudent = async function (req, res) {
 exports.getStudent = async function (req, res) {
     let data = req.query
     //validation
+    if(!data) 
+    return res.status(400).send({ message: "enter name and subject"})
+
     let { name, subject } = data
     // validation
+     //check name is present 
+     if(!name ||typeof name !=='string' || name.trim().length==0 )
+     {
+         return res.status(400).send({ status: false, msg: "name is required and is of string type" })
+     }
+ 
+     //validate name
+     if (!/^([a-zA-Z. , ]){1,100}$/.test(name)) {
+         return res.status(400).send({ status: false, message: `name contain only alphabets` })
+     }
+     
+     //check subject is present 
+     if(!subject ||typeof subject !=='string' || subject.trim().length==0 )
+     {
+         return res.status(400).send({ status: false, msg: "subject is required and is of string type" })
+     }
+ 
+     //validate subject
+     if (!/^([a-zA-Z. , ]){1,100}$/.test(name)) {
+         return res.status(400).send({ status: false, message: `subject contain only alphabets` })
+     }
     let studentData = await studentModel.find({ data });
     if (!studentData) {
         return res.status(404).send({ message: "student data not found" })
@@ -101,6 +125,7 @@ exports.deleteStudentData = async function(req,res){
 
     let checkstudent=await studentModel.find({name: name, subject: subject} )
     if(!checkstudent) return res.status(404).send({status:false, message:"Data not found"})
+    
     if(checkstudent.isDeleted=="true")
     return res.status(400).send({status:false, message:"Data already deleted"})
 
